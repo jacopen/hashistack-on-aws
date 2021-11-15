@@ -1,0 +1,142 @@
+{
+  "min_packer_version": "0.12.0",
+  "variables": {
+    "aws_region": "ap-northeast-1",
+    "nomad_version": "1.1.6",
+    "consul_module_version": "v0.11.0",
+    "consul_version": "1.9.11",
+    "ami_name_prefix": "nomad-consul"
+  },
+  "builders": [
+    {
+      "name": "ubuntu18-ami",
+      "ami_name": "{{user `ami_name_prefix`}}-ubuntu18-{{isotime | clean_resource_name}}",
+      "ami_description": "An example of how to build an Ubuntu 18.04 AMI that has Nomad and Consul installed",
+      "instance_type": "t2.micro",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+       "filters": {
+         "virtualization-type": "hvm",
+         "architecture": "x86_64",
+         "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
+         "block-device-mapping.volume-type": "gp2",
+         "root-device-type": "ebs"
+       },
+       "owners": [
+         "099720109477"
+       ],
+       "most_recent": true
+      },
+      "ssh_username": "ubuntu"
+    },
+    {
+      "name": "ubuntu20-ami",
+      "ami_name": "{{user `ami_name_prefix`}}-docker-ubuntu20-{{isotime | clean_resource_name}}",
+      "ami_description": "An Ubuntu 20.04 AMI that has Nomad, Consul and Docker installed.",
+      "instance_type": "t2.micro",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "*ubuntu-focal-20.04-amd64-server-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "099720109477"
+        ],
+        "most_recent": true
+      },
+      "ssh_username": "ubuntu"
+    },
+    {
+      "ami_name": "{{user `ami_name_prefix`}}-amazon-linux-2-amd64-{{isotime | clean_resource_name}}",
+      "ami_description": "An Amazon Linux 2 x86_64 AMI that has Nomad and Consul installed.",
+      "instance_type": "t2.micro",
+      "name": "amazon-linux-2-amd64-ami",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "*amzn2-ami-hvm-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "amazon"
+        ],
+        "most_recent": true
+      },
+      "ssh_username": "ec2-user"
+    },
+    {
+      "ami_name": "{{user `ami_name_prefix`}}-amazon-linux-2-arm64-{{isotime | clean_resource_name}}",
+      "ami_description": "An Amazon Linux 2 ARM64 AMI that has Nomad and Consul installed.",
+      "instance_type": "t4g.micro",
+      "name": "amazon-linux-2-arm64-ami",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "arm64",
+          "name": "*amzn2-ami-hvm-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "amazon"
+        ],
+        "most_recent": true
+      },
+      "ssh_username": "ec2-user"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo apt-get install -y git"
+      ],
+      "only": [
+        "ubuntu20-ami",
+        "ubuntu18-ami"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum install -y git"
+      ],
+      "only": [
+        "amazon-linux-2-amd64-ami",
+        "amazon-linux-2-arm64-ami"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": ["mkdir -p /tmp/terraform-aws-nomad"],
+      "pause_before": "30s"
+    },
+    {
+      "type": "file",
+      "source": "{{template_dir}}/../",
+      "destination": "/tmp/terraform-aws-nomad"
+    },
+      {
+      "type": "shell",
+      "environment_vars": [
+        "NOMAD_VERSION={{user `nomad_version`}}",
+        "CONSUL_VERSION={{user `consul_version`}}",
+        "CONSUL_MODULE_VERSION={{user `consul_module_version`}}"
+      ],
+      "script": "{{template_dir}}/setup_nomad_consul.sh"
+    }
+  ]
+}
+
