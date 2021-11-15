@@ -7,11 +7,14 @@ SCRIPT=`basename "$0"`
 #echo "[INFO] [${SCRIPT}] Setup git"
 #sudo apt install -y git
 
-sudo apt-get install \
+sudo apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release
+    lsb-release \
+    vim \
+    curl \
+    jq
 
 # Using Docker CE directly provided by Docker
 echo "[INFO] [${SCRIPT}] Setup docker"
