@@ -37,7 +37,7 @@ resource "aws_instance" "bastion" {
   key_name                    = var.ssh_key_name
   vpc_security_group_ids      = [aws_security_group.allow_ssh.id]
   subnet_id                   = aws_subnet.main.id
-  user_data                   = file("install-nomad.sh")
+  user_data                   = file("user-data/install-nomad.sh")
 
   tags = {
     Name = "bastion"
