@@ -27,19 +27,6 @@ variable "nomad_version" {
   default = "1.1.6"
 }
 
-data "amazon-ami" "bionic" {
-  filters = {
-    architecture                       = "x86_64"
-    "block-device-mapping.volume-type" = "gp2"
-    name                               = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
-    root-device-type                   = "ebs"
-    virtualization-type                = "hvm"
-  }
-  most_recent = true
-  owners      = ["099720109477"]
-  region      = "${var.aws_region}"
-}
-
 data "amazon-ami" "focal" {
   filters = {
     architecture                       = "x86_64"
@@ -53,15 +40,6 @@ data "amazon-ami" "focal" {
   region      = "${var.aws_region}"
 }
 
-source "amazon-ebs" "ubuntu18-ami" {
-  ami_description = "An example of how to build an Ubuntu 18.04 AMI that has Nomad, Consul and Docker"
-  ami_name        = "${var.ami_name_prefix}-docker-ubuntu18-${formatdate("DD-MMM-YY-hh-mm", timestamp())}"
-  instance_type   = "t2.micro"
-  region          = "${var.aws_region}"
-  source_ami      = "${data.amazon-ami.bionic.id}"
-  ssh_username    = "ubuntu"
-}
-
 source "amazon-ebs" "ubuntu20-ami" {
   ami_description = "An Ubuntu 20.04 AMI that has Nomad, Consul and Docker installed."
   ami_name        = "${var.ami_name_prefix}-docker-ubuntu20-${formatdate("DD-MMM-YY-hh-mm", timestamp())}"
@@ -73,7 +51,6 @@ source "amazon-ebs" "ubuntu20-ami" {
 
 build {
   sources = [
-    "source.amazon-ebs.ubuntu18-ami",
     "source.amazon-ebs.ubuntu20-ami"
   ]
 
@@ -82,7 +59,6 @@ build {
   }
 
   provisioner "shell" {
-    only   = ["ubuntu20-ami", "ubuntu18-ami"]
     script = "${path.root}/setup_ubuntu.sh"
   }
 
