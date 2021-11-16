@@ -157,6 +157,11 @@ EOF
 client {
   enabled = true
 }
+plugin "docker" {
+  config {
+    allow_privileged = true
+  }
+}
 EOF
 )
   fi
@@ -180,6 +185,7 @@ $server_config
 
 consul {
   address = "127.0.0.1:8500"
+  token = ""
 }
 EOF
   chown "$user:$user" "$config_path"
