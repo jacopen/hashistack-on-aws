@@ -1,5 +1,5 @@
 job "example3" {
-  datacenters = ["ap-northeast-1d"]
+  datacenters = ["ap-northeast-1c"]
 
   group "cache" {
     network {
