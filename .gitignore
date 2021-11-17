@@ -6,3 +6,6 @@
 *.tfstate.*
 
 .DS_Store
+
+terraform.tfvars
+plan
