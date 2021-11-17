@@ -16,23 +16,6 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# data source for vanilla Ubuntu AWS AMI as base image for cluster
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 # creates random UUID for the environment name
 resource "random_id" "environment_name" {
   byte_length = 4
@@ -82,13 +65,13 @@ resource "aws_autoscaling_group" "nomad_servers" {
 # provides a resource for a new autoscaling group launch configuration
 resource "aws_launch_configuration" "nomad_servers" {
   name            = "${random_id.environment_name.hex}-nomad-servers-${var.consul_cluster_version}"
-  image_id        = data.aws_ami.ubuntu.id
+  image_id        = var.ami_id
   instance_type   = var.instance_type
   key_name        = var.key_name
   security_groups = [aws_security_group.nomad.id]
   user_data = templatefile("${path.module}/scripts/install_hashitools_nomad_server.sh.tpl",
     {
-      ami                    = data.aws_ami.ubuntu.id,
+      ami                    = var.ami_id,
       environment_name       = "${var.name_prefix}-nomad",
       consul_version         = var.consul_version,
       nomad_version          = var.nomad_version,

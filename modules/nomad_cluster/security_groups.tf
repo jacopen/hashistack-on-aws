@@ -203,3 +203,22 @@ resource "aws_security_group_rule" "nomad_udp_egress_serf" {
   protocol                 = "udp"
   source_security_group_id = aws_security_group.nomad.id
 }
+
+// Permit access from allowed inbound CIDRs.
+resource "aws_security_group_rule" "http" {
+  security_group_id = aws_security_group.nomad.id
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = var.allowed_inbound_cidrs
+}
+
+resource "aws_security_group_rule" "sample" {
+  security_group_id = aws_security_group.nomad.id
+  type              = "ingress"
+  from_port         = 9000
+  to_port           = 9999
+  protocol          = "tcp"
+  cidr_blocks       = var.allowed_inbound_cidrs
+}

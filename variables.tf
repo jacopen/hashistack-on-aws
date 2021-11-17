@@ -67,6 +67,6 @@ variable "public_ip" {
   description = "should ec2 instance have public ip?"
 }
 
-variable "vpc_id" {
-  description = "VPC ID"
+variable "ami_id" {
+  default = ""
 }

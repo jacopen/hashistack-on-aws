@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
 # install package
 
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -

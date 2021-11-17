@@ -70,3 +70,7 @@ variable "public_ip" {
 variable "vpc_id" {
   description = "VPC ID"
 }
+
+variable "ami_id" {
+
+}

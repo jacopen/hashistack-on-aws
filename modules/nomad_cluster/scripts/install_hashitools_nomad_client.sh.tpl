@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
 # install package
 
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
@@ -7,7 +9,6 @@ apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_re
 apt-get update
 apt-get install -y consul=${consul_version}
 apt-get install -y nomad=${nomad_version}
-apt-get install -y docker.io
 
 echo "Configuring system time"
 timedatectl set-timezone UTC
